@@ -1,6 +1,16 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, send_from_directory
 from bson.objectid import ObjectId
-from db import collection # 👈 记得在这一层引入数据库！
+from db import collection 
+import os
+from werkzeug.utils import secure_filename
+
+# 配置上传
+UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS # 👈 记得在这一层引入数据库！
 
 # 加密工具
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -110,3 +120,30 @@ def update_user_api():
         update_data["age"] = int(data_filter["age"])
     result = collection.update_many(query, {"$set": update_data})
     return {"message": f"找到了{result.matched_count}条数据，更新成功了 {result.modified_count} 条数据"}
+
+# === 🆕 上传接口 ===
+@api_bp.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return {'msg': '没有文件部分'}, 400
+    file = request.files['file']
+    if file.filename == '':
+        return {'msg': '没有选择文件'}, 400
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        # 确保目录存在
+        if not os.path.exists(UPLOAD_FOLDER):
+            os.makedirs(UPLOAD_FOLDER)
+        
+        save_path = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(save_path)
+        # 返回图片的访问 URL
+        file_url = request.host_url + 'uploads/' + filename
+        return {'msg': '文件上传成功', 'filename': filename, 'url': file_url}
+    
+    return {'msg': '不允许的文件类型 (仅支持 png, jpg, jpeg, gif)'}, 400
+
+# === 🆕 图片访问接口 ===
+@api_bp.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(UPLOAD_FOLDER, filename)

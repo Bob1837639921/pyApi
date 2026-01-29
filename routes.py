@@ -5,7 +5,12 @@ import os
 from werkzeug.utils import secure_filename
 
 # 配置上传
-UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
+if app_env == 'local':
+    # 本地开发：存到项目文件夹下的 uploads (Windows/Mac)
+    UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
+else:
+    # 线上部署：存到 Nginx 指定的那个公共文件夹 (Linux)
+    UPLOAD_FOLDER = '/var/www/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def allowed_file(filename):

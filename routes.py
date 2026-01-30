@@ -3,7 +3,13 @@ from bson.objectid import ObjectId
 from db import collection 
 import os
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
+from config import Config
 
+# 加载 .env 变量
+load_dotenv()
+
+app_env = Config.APP_ENV
 # 配置上传
 if app_env == 'local':
     # 本地开发：存到项目文件夹下的 uploads (Windows/Mac)

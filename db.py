@@ -2,16 +2,17 @@ import os
 import sys
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from config import Config
 
 # 加载 .env 变量
 load_dotenv()
 
 # === 获取配置 ===
 # 判断当前环境，默认是 production (线上)
-app_env = os.getenv("APP_ENV", "production") 
+app_env = Config.APP_ENV
 
-db_user = os.getenv("DB_USER", "user1")
-db_pass = os.getenv("DB_PASS", "xym123")
+db_user = Config.DB_USER
+db_pass = Config.DB_PASS
 mongo_db_name = 'mydb' # 你的数据库名
 
 # 定义全局变量，防止连接丢失
@@ -33,9 +34,9 @@ def get_db_connection():
         try:
             from sshtunnel import SSHTunnelForwarder
             
-            ssh_host = os.getenv("SSH_HOST")
-            ssh_user = os.getenv("SSH_USER")
-            ssh_pass = os.getenv("SSH_PWD")
+            ssh_host = Config.SSH_HOST
+            ssh_user = Config.SSH_USER
+            ssh_pass = Config.SSH_PWD
             
             # 创建隧道
             ssh_server = SSHTunnelForwarder(

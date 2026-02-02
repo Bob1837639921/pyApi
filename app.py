@@ -19,5 +19,10 @@ jwt = JWTManager(app)
 # 注册蓝图 (把分店挂载到总店下)
 app.register_blueprint(api_bp)
 
+@app.route('/')
+def home():
+    return 'Hello, World!'
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(host='0.0.0.0', debug=True, port=5001)
+

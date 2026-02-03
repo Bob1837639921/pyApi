@@ -10,6 +10,7 @@ services:
     environment:
       - FLASK_ENV=development
       - MONGO_URI=mongodb://db:27017/mydatabase
+    command: gunicorn --reload -w 1 -b 0.0.0.0:5001 app:app
     depends_on:
       - db
   db:
